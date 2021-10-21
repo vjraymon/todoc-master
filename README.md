@@ -1,6 +1,6 @@
 OpenClassrooms
 
-Mini-projets 5 réalisés pour OpenClassrooms
+Mini-projet 5 réalisé pour OpenClassrooms
 
 1- Download a zip code an expand it on your PC
 
