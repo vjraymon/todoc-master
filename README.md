@@ -7,7 +7,8 @@ Mini-projet 5 réalisé pour OpenClassrooms
 2- Open under android studio the project todoc-master-master
 
 3- Install Gradle 7.0.2:
-   File -- Settings -- Build, Execution, Deployment -- Build tools -- Gradle -- Use gradle from "Specified location"
+   File -- Settings -- Build, Execution, Deployment -- Build tools -- Gradle -- Use gradle from "Specified location" 
+   Sync project with gradle files 
    Migrate to Gradle Wrapper and sync project
    Gradle Scripts: gradle-wrapper.properties: distributionUrl=https\://services.gradle.org/distributions/gradle-7.0.2-bin.zip
 
