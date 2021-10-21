@@ -6,6 +6,8 @@ Mini-projet 5 réalisé pour OpenClassrooms
 
 2- Open under android studio the project todoc-master-master
 
-3- Sync. Project with Gradle Files
+3- Install Gradle 7.0.2
 
-4- Build and execute 
+4- Sync. Project with Gradle Files
+
+5- Build and execute 
