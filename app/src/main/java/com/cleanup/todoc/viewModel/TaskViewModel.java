@@ -22,7 +22,6 @@ public class TaskViewModel extends ViewModel {
 
     // Data
     @Nullable
-//    private LiveData<Project> currentProject;
     private LiveData<List<Project>> currentProjects;
 
     public TaskViewModel(TaskDataRepository taskDataSource, ProjectDataRepository projectDataSource, Executor executor) {
@@ -31,10 +30,8 @@ public class TaskViewModel extends ViewModel {
         this.executor = executor;
     }
 
-    public void init(/*long projectId*/) {
+    public void init() {
         currentProjects = projectDataSource.getProjects();
-//        if (this.currentProject != null) { return; }
- //       currentProject = projectDataSource.getProject(projectId);
         if (currentProjects != null) {
             currentProjects.observeForever(this::updateProjectsList);
         }
@@ -48,12 +45,11 @@ public class TaskViewModel extends ViewModel {
     // For Project
     // ---------------------
 
-//    public LiveData<Project> getProject(long id) { return projectDataSource.getProject(id); }
     public LiveData<List<Project>> getProjects() { return projectDataSource.getProjects(); }
     /**
      * List of all projects available in the application
      */
-    private List<Project> allProjects = new ArrayList<>();//Project.getAllProjects();
+    private List<Project> allProjects = new ArrayList<>();
 
     /**
      * Returns the project with the given unique identifier, or null if no project with that

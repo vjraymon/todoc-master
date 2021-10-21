@@ -4,18 +4,16 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.room.AutoMigration;
 import androidx.room.Database;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
-@Database(entities = {Task.class, Project.class}, version = 2,
+@Database(entities = {Task.class, Project.class}, version = 1,
         exportSchema = false)
 public abstract class SaveTodocDatabase extends RoomDatabase {
     private static volatile SaveTodocDatabase INSTANCE;
