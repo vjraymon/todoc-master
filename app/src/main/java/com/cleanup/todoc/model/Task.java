@@ -21,8 +21,9 @@ public class Task {
     /**
      * The unique identifier of the task
      */
-    @PrimaryKey
-    private long taskId;
+    @PrimaryKey(autoGenerate = true)
+//    @PrimaryKey
+    private long taskId;// = 0;
 
     /**
      * The unique identifier of the project associated to the task
@@ -90,11 +91,11 @@ public class Task {
      *
      * @return the project associated to the task
      */
-    @Nullable
+/*    @Nullable
     public Project getProject() {
         return Project.getProjectById(projectId);
     }
-
+*/
     /**
      * Returns the name of the task.
      *

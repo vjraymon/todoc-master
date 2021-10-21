@@ -20,5 +20,4 @@ public class TaskDataRepository {
 
     public void updateTask(Task task) { taskDao.updateTask(task); }
 
-    public Task getAnyTask() { return taskDao.getAnyTask(); }
 }

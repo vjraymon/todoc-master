@@ -9,6 +9,7 @@ import com.cleanup.todoc.model.Task;
 import com.cleanup.todoc.repositories.ProjectDataRepository;
 import com.cleanup.todoc.repositories.TaskDataRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -21,7 +22,7 @@ public class TaskViewModel extends ViewModel {
 
     // Data
     @Nullable
-    private LiveData<Project> currentProject;
+//    private LiveData<Project> currentProject;
     private LiveData<List<Project>> currentProjects;
 
     public TaskViewModel(TaskDataRepository taskDataSource, ProjectDataRepository projectDataSource, Executor executor) {
@@ -30,18 +31,45 @@ public class TaskViewModel extends ViewModel {
         this.executor = executor;
     }
 
-    public void init(long projectId) {
-//        currentProjects = projectDataSource.getProjects();
-        if (this.currentProject != null) { return; }
-        currentProject = projectDataSource.getProject(projectId);
+    public void init(/*long projectId*/) {
+        currentProjects = projectDataSource.getProjects();
+//        if (this.currentProject != null) { return; }
+ //       currentProject = projectDataSource.getProject(projectId);
+        if (currentProjects != null) {
+            currentProjects.observeForever(this::updateProjectsList);
+        }
+    }
+
+    private void updateProjectsList(List<Project> projects) {
+        this.allProjects = projects;
     }
 
     // ---------------------
     // For Project
     // ---------------------
 
-    public LiveData<Project> getProject(long id) { return this.currentProject; }
+//    public LiveData<Project> getProject(long id) { return projectDataSource.getProject(id); }
     public LiveData<List<Project>> getProjects() { return projectDataSource.getProjects(); }
+    /**
+     * List of all projects available in the application
+     */
+    private List<Project> allProjects = new ArrayList<>();//Project.getAllProjects();
+
+    /**
+     * Returns the project with the given unique identifier, or null if no project with that
+     * identifier can be found.
+     *
+     * @param id the unique identifier of the project to return
+     * @return the project with the given unique identifier, or null if it has not been found
+     */
+    @Nullable
+    public Project getProjectById(long id) {
+        for (Project project : allProjects) {
+            if (project.getId() == id)
+                return project;
+        }
+        return null;
+    }
 
     // ---------------------
     // For Task
@@ -68,6 +96,4 @@ public class TaskViewModel extends ViewModel {
             taskDataSource.updateTask(task);
         });
     }
-
-    public Task getAnyTask() { return taskDataSource.getAnyTask(); }
 }

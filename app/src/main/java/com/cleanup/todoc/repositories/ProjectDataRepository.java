@@ -13,7 +13,7 @@ public class ProjectDataRepository {
 
     public ProjectDataRepository(ProjectDao projectDao) { this.projectDao = projectDao; }
 
-    public LiveData<Project> getProject(long id) { return this.projectDao.getProject(id); }
+//    public LiveData<Project> getProject(long id) { return this.projectDao.getProject(id); }
 
     public LiveData<List<Project>> getProjects() { return this.projectDao.getProjects(); }
 }

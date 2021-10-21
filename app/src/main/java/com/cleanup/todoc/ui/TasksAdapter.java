@@ -1,6 +1,7 @@
 package com.cleanup.todoc.ui;
 
 import android.content.res.ColorStateList;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cleanup.todoc.R;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
+import com.cleanup.todoc.viewModel.TaskViewModel;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -23,26 +25,34 @@ import java.util.List;
  * @author Gaëtan HERFRAY
  */
 public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHolder> {
+    private TaskViewModel taskViewModel;
     /**
      * The list of tasks the adapter deals with
      */
     @NonNull
     private List<Task> tasks;
-
+//    private List<Project> projects;
     /**
      * The listener for when a task needs to be deleted
      */
     @NonNull
     private final DeleteTaskListener deleteTaskListener;
-
     /**
      * Instantiates a new TasksAdapter.
      *
      * @param tasks the list of tasks the adapter deals with to set
      */
-    TasksAdapter(@NonNull final List<Task> tasks, @NonNull final DeleteTaskListener deleteTaskListener) {
+    TasksAdapter(@NonNull final List<Task> tasks, @NonNull final DeleteTaskListener deleteTaskListener, /*List<Project> projects,*/ @NonNull final TaskViewModel taskViewModel) {
+        Log.i("Adapter", "TasksAdapter");
         this.tasks = tasks;
         this.deleteTaskListener = deleteTaskListener;
+ //       this.projects = projects;
+        this.taskViewModel = taskViewModel;
+    }
+
+    public void updateProjectsList(List<Project> projects) {
+        Log.i("Adapter", "updateProjectsList projects size = " + projects.size());
+        notifyDataSetChanged();
     }
 
     /**
@@ -51,6 +61,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
      * @param tasks the list of tasks the adapter deals with to set
      */
     void updateTasks(@NonNull final List<Task> tasks) {
+        Log.i("Adapter", "updateTasks");
         this.tasks = tasks;
         notifyDataSetChanged();
     }
@@ -59,12 +70,20 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     @Override
     public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_task, viewGroup, false);
-        return new TaskViewHolder(view, deleteTaskListener);
+        return new TaskViewHolder(view, deleteTaskListener/*, projects*/);
     }
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder taskViewHolder, int position) {
-        taskViewHolder.bind(tasks.get(position), deleteTaskListener);
+        long projectId = tasks.get(position).getProjectId();
+        Project project = taskViewModel.getProjectById(projectId);
+        if (project != null) {
+        //       for (Project project : projects) {
+ //           if (project.getId() == projectId) {
+                taskViewHolder.bind(tasks.get(position), deleteTaskListener, project);
+ //               return;
+ //           }
+        }
     }
 
     @Override
@@ -115,26 +134,23 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
          */
         private final DeleteTaskListener deleteTaskListener;
 
-        // For Data
-        private WeakReference<DeleteTaskListener> callbackWeakRef;
-
         /**
          * Instantiates a new TaskViewHolder.
          *
          * @param itemView the view of the task item
          * @param deleteTaskListener the listener for when a task needs to be deleted to set
          */
-        TaskViewHolder(@NonNull View itemView, @NonNull DeleteTaskListener deleteTaskListener) {
+        TaskViewHolder(@NonNull View itemView, @NonNull DeleteTaskListener deleteTaskListener/*, List<Project> projects*/) {
             super(itemView);
 
             this.deleteTaskListener = deleteTaskListener;
+            Log.i("Adapter","TaskViewHolder");
 
             imgProject = itemView.findViewById(R.id.img_project);
             lblTaskName = itemView.findViewById(R.id.lbl_task_name);
             lblProjectName = itemView.findViewById(R.id.lbl_project_name);
             imgDelete = itemView.findViewById(R.id.img_delete);
 
-            this.callbackWeakRef = new WeakReference<TasksAdapter.DeleteTaskListener>(deleteTaskListener);
             imgDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -142,8 +158,6 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
                     if (tag instanceof Task) {
                         TaskViewHolder.this.deleteTaskListener.onDeleteTask((Task) tag);
                     }
-                    TasksAdapter.DeleteTaskListener callback = callbackWeakRef.get();
-                    if (callback != null) callback.onDeleteTask((Task) tag);
                 }
             });
         }
@@ -153,15 +167,17 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
          *
          * @param task the task to bind in the item view
          */
-        void bind(Task task, DeleteTaskListener deleteTaskListener) {
+        void bind(Task task, DeleteTaskListener deleteTaskListener, Project project) {
+            Log.i("Adapter","Bind");
             lblTaskName.setText(task.getName());
             imgDelete.setTag(task);
 
-            final Project taskProject = task.getProject();
+            final Project taskProject = project; //task.getProject();
             if (taskProject != null) {
                 imgProject.setSupportImageTintList(ColorStateList.valueOf(taskProject.getColor()));
                 lblProjectName.setText(taskProject.getName());
             } else {
+                Log.i("Adapter","Bind project null");
                 imgProject.setVisibility(View.INVISIBLE);
                 lblProjectName.setText("");
             }

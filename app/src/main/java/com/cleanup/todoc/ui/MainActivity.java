@@ -42,18 +42,16 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity implements TasksAdapter.DeleteTaskListener {
     // File purpose
-    private static final String FILENAME = "todoc.txt";
-    private static final String FOLDERNAME = "todocTrip";
+//    private static final String FILENAME = "todoc.txt";
+//    private static final String FOLDERNAME = "todocTrip";
 
     // For Data
     private TaskViewModel taskViewModel;
-//    private TasksAdapter adapter;
-    private static int PROJECT_ID = 2;
 
     /**
      * List of all projects available in the application
      */
-    private final Project[] allProjects = Project.getAllProjects();
+    private List<Project> allProjects = new ArrayList<>();//Project.getAllProjects();
 
     /**
      * List of all current tasks of the application
@@ -113,12 +111,9 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         listTasks = findViewById(R.id.list_tasks);
         lblNoTasks = findViewById(R.id.lbl_no_task);
 
-//        listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-//        listTasks.setAdapter(adapter);
-
         this.configureViewModel();
-        this.getCurrentProject(PROJECT_ID);
         this.getTasks();
+        this.getProjects();
         this.configureRecyclerView();
 
         findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
@@ -138,17 +133,17 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         ViewModelFactory mViewModelFactory = Injection.provideViewModelFactory(this);
         this.taskViewModel = new ViewModelProvider(this, mViewModelFactory)
                 .get(TaskViewModel.class);
-        this.taskViewModel.init(PROJECT_ID);
+        this.taskViewModel.init();
     }
 
-    // Get current Project
-    private void getCurrentProject(int projectId) {
-        this.taskViewModel.getProject(projectId).observe(this, this::updateHeader);
+    // Get list of Project
+    private void getProjects() {
+        this.taskViewModel.getProjects().observe(this, this::updateProjectsList);
     }
 
     // Get all tasks for all projects
     private void getTasks() {
-        this.taskViewModel.getTasks().observeForever(this::updateTasksList);
+        this.taskViewModel.getTasks().observe(this, this::updateTasksList);
     }
 
     //Create a new task
@@ -178,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
     // Configure RecyclerView
     private void configureRecyclerView() {
-        this.adapter = new TasksAdapter(tasks, this);
+        this.adapter = new TasksAdapter(tasks, this, /*allProjects,*/ taskViewModel);
         this.listTasks.setAdapter(this.adapter);
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
@@ -190,13 +185,15 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         });
     }
 
-    private  void updateHeader(Project project) {
-    }
-
     private void updateTasksList(List<Task> tasks) {
         this.tasks = tasks;
         updateLblNoTasks(tasks);
         this.adapter.updateTasks(tasks);
+    }
+
+    private void updateProjectsList(List<Project> projects) {
+        this.allProjects = projects;
+        this.adapter.updateProjectsList(projects);
     }
 
     @Override
@@ -220,9 +217,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
     @Override
     public void onDeleteTask(Task task) {
-//        tasks.remove(task);
         this.deleteTask(task);
- //       updateTasks();
     }
 
     /**
@@ -248,9 +243,8 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             }
             // If both project and name of the task have been set
             else if (taskProject != null) {
-                // TODO: Replace this by id of persisted task
-                long id = (long) (Math.random() * 50000);
-
+                // DONE: Replace this by id of persisted task
+                long id = 0; // for autoGenerate
 
                 Task task = new Task(
                         id,
@@ -258,9 +252,8 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                         taskName,
                         new Date().getTime()
                 );
-                createTask(task);  // maybe pass the new Task in parameter instead of recomputing it
-//                addTask(task);
 
+                createTask(task);
 
                 dialogInterface.dismiss();
             }
@@ -290,21 +283,10 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     }
 
     /**
-     * Adds the given task to the list of created tasks.
-     *
-     * @param task the task to be added to the list
-     */
-    private void addTask(@NonNull Task task) {
-        tasks.add(task);
-        updateTasks(tasks);
-    }
-
-    /**
      * Updates the list of tasks in the UI
      */
     private void updateLblNoTasks(List<Task> tasks) {
-        this.tasks = tasks;
-        if (tasks.size() == 0) {
+        if (tasks.isEmpty()) {
             lblNoTasks.setVisibility(View.VISIBLE);
             listTasks.setVisibility(View.GONE);
         } else {
@@ -313,13 +295,8 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         }
     }
     private void updateTasks(List<Task> tasks) {
-        this.tasks = tasks;
-        if (tasks.size() == 0) {
-            lblNoTasks.setVisibility(View.VISIBLE);
-            listTasks.setVisibility(View.GONE);
-        } else {
-            lblNoTasks.setVisibility(View.GONE);
-            listTasks.setVisibility(View.VISIBLE);
+        updateLblNoTasks(tasks);
+        if (!tasks.isEmpty()) {
             switch (sortMethod) {
                 case ALPHABETICAL:
                     Collections.sort(tasks, new Task.TaskAZComparator());

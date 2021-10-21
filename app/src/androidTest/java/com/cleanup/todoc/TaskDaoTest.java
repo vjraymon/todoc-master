@@ -44,13 +44,14 @@ public class TaskDaoTest {
     private static Project PROJECT_DEMO = new Project(PROJECT_ID,"Projet Tartempion", 0xFFEADAD1);
 
     private static Task NEW_TASK_1 = new Task(0, PROJECT_ID, "cuisine", 0);
-    private static Task NEW_TASK_2 = new Task(1, PROJECT_ID, "salon", 0);
-    private static Task NEW_TASK_3 = new Task(2, PROJECT_ID, "chambre", 0);
+    private static Task NEW_TASK_2 = new Task(0, PROJECT_ID, "salon", 0);
+    private static Task NEW_TASK_3 = new Task(0, PROJECT_ID, "chambre", 0);
 
     @Test
     public void insertAndGetProject() throws InterruptedException {
         this.database.projectDao().createProject(PROJECT_DEMO);
-        Project project = LiveDataTestUtil.getValue(this.database.projectDao().getProject(PROJECT_ID));
+        List<Project> projects = LiveDataTestUtil.getValue(this.database.projectDao().getProjects());
+        Project project = projects.get(0);
         assert(project.getId()==PROJECT_ID);
         assert(project.getName().equals(PROJECT_DEMO.getName()));
         assert(project.getColor()==PROJECT_DEMO.getColor());
